@@ -147,8 +147,8 @@ export class RateLimiter {
     if (this.activeRequests < this.config.maxConcurrent) {
         if (this.requestHistory.length < this.config.maxRequestsPerMinute) {
             let tokens = this.requestHistory.reduce((sum, r) => sum + r.tokens, 0);
-            if(tokens) {
-                return true;
+            if (tokens + estimatedTokens <= this.config.maxTokensPerMinute) {
+              return true;
             }
         }
     }
@@ -193,7 +193,7 @@ export class RateLimiter {
     // 5. Sleep for the calculated wait time
     // 6. Loop continues and checks again
 
-    while(this.canProceed(estimatedTokens)) {
+    while (!this.canProceed(estimatedTokens)) {
         this.pruneOldRecords();
         if (this.requestHistory.length === 0) {
             break;
